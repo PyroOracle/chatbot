@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>TechnoBot</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgb(247, 184, 67); /* Light grey background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 100px;
+            box-sizing: border-box;
+        }
+
+        /* Chatbot Container */
+        .chat-container {
+            width: 500%;
+            max-width: 10000px; /* Slightly wider for better readability */
+            background-color: rgb(243, 150, 116);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Softer, deeper shadow */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-out; /* Simple fade-in animation */
+        }
+
+        /* Chat Header */
+        .chat-header {
+            background-color: rgb(129, 10, 240); /* Deep blue from Techno Brain branding */
+            color: white;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: 600; /* Semi-bold */
+            text-align: center;
+            border-bottom: 2px solid rgb(127, 10, 240); /* Darker line for definition */
+        }
+
+        /* Chat Messages Box */
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 550px; /* Adjusted height */
+            background-color: #eef1f5; /* Very light grey for chat background */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Individual Message Styling */
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .message-bubble {
+            padding: 12px 18px;
+            border-radius: 20px; /* More rounded bubbles */
+            line-height: 1.5;
+            max-width: 80%; /* Slightly wider max-width */
+            word-wrap: break-word;
+            font-size: 0.95em;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* Subtle bubble shadow */
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .bot-message .message-bubble {
+            background-color: #e0f2f7; /* Light cyan/blue for bot */
+            color: #333;
+            border-bottom-left-radius: 5px; /* Angled corner */
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .user-message .message-bubble {
+            background-color: green; /* Green for user messages */
+            color: white;
+            border-bottom-right-radius: 5px; /* Angled corner */
+            text-align: left; /* Ensure text alignment is left within the bubble */
+        }
+
+        /* Chat Input Area */
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #e0e0e0;
+            padding: 15px;
+            background-color: #ffffff;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #cccccc;
+            border-radius: 25px; /* Fully rounded input field */
+            font-size: 1em;
+            outline: none;
+            margin-right: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: white; /* Highlight on focus */
+            box-shadow: 0 0 0 3px white;
+        }
+
+        .chat-input button {
+            padding: 12px 22px;
+            border: none;
+            background-color: rgb(3, 100, 3); /* Bright blue for send button */
+            color: white;
+            font-weight: bold;
+            border-radius: 25px; /* Fully rounded button */
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .chat-input button:hover {
+            background-color: rgb(32, 238, 32);
+        }
+
+        .chat-input button:active {
+            transform: translateY(1px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .chat-container {
+                border-radius: 0;
+                box-shadow: none;
+                height: 100vh;
+                max-width: none;
+            }
+            body {
+                padding: 0;
+                align-items: stretch;
+            }
+            .chat-box {
+                max-height: calc(100vh - 120px); /* Adjust based on header/input height */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">TechnoBot</div>
+        <div class="chat-box" id="chat-box">
+            <div class="message bot">
+                <div class="message-bubble">👋 Hello! I'm your TechnoBot. I can provide information about our services, employment opportunities, or help you connect with the right team.<br><br>Are you a **Job Seeker** or a **Potential Client**?</div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message..." />
+            <button onclick="handleUserInput()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const userInput = document.getElementById("user-input");
+
+        let userType = null;
+        let step = 0;
+        let collectedData = {};
+
+        // Data for responses
+        const data = {
+            services: `
+                💼 <b>Our Services include:</b><br>
+                - <b>Cloud Solutions:</b> Migration, FinOps, Generative AI, Managed Services, DevOps<br>
+                - <b>Digital Products:</b> AI, RPA, Chatbots, Digital Agriculture, IoT (Locate 365), VR<br>
+                - <b>Government & Public Sector:</b> PFM, Digital Identity, Tax & Customs, e-Government<br>
+                - <b>Core Competencies:</b> IT Training, Business Process Outsourcing (BPO), Software Engineering, Systems Integration
+            `,
+            employmentGeneral: `
+                🧑‍💻 <b>General Employment Requirements:</b><br>
+                - <b>Academic:</b> Bachelor’s/Master’s degree in Computer Science, ICT, Engineering, or related fields.<br>
+                - <b>Professional Qualifications:</b> Relevant industry certifications are a plus.<br>
+                - <b>Skills:</b> Strong interpersonal, communication, and teamwork abilities. Proficiency in MS Office Suite.<br>
+                - <b>Mindset:</b> Enthusiasm for technology and a desire for continuous learning.
+            `,
+            employmentSpecific: `
+                🔍 <b>Examples of Specific Skills/Experience:</b><br>
+                - <b>Software Development:</b> C#, .NET, ASP.NET, VB.NET, React, Angular, SQL, NoSQL databases.<br>
+                - <b>QA:</b> Test planning, test case design, bug lifecycle, test execution, test reporting, test automation.<br>
+                - <b>Project Management:</b> Technical project management, project delivery excellence.<br>
+                - <b>Other:</b> Business Development, Corporate Finance, Agile tools (Azure DevOps, Jira), Git, CI/CD, Computer Architecture (x86, System Z), Sales Process Management.
+            `,
+            departments: `
+                🏢 <b>Available Departments:</b><br>
+                - Engineering (Software Engineering/Development)<br>
+                - Business Process Outsourcing (BPO)<br>
+                - Solutions (AI, IoT, Digital Agriculture, etc.)<br>
+                - Cloud Services<br>
+                - Project Management<br>
+                - Sales & Marketing<br>
+                - Finance/Accounts<br>
+                - Human Resources<br>
+                - IT Training<br>
+                - Quality Assurance (QA)
+            `,
+            departmentsList: [ // Used for select dropdown in job seeker form
+                "Engineering", "Business Process Outsourcing (BPO)", "Solutions", "Cloud Services",
+                "Project Management", "Sales & Marketing", "Finance/Accounts", "Human Resources",
+                "IT Training", "Quality Assurance (QA)", "Other"
+            ],
+            servicesList: [ // Used for select dropdown in client form
+                "Cloud Migration", "FinOps", "Generative AI Solutions", "Managed Cloud Services", "Microsoft Workloads", "DevOps On The Cloud",
+                "Artificial Intelligence", "Robotic Process Automation", "Chatbot Development", "Engineering Business", "Digital Agriculture", "Internet Of Things (IoT/Locate 365)", "Virtual Reality",
+                "Public Financial Management", "Digital Identity Management", "Tax & Customs", "e-Government solutions",
+                "IT Training (Techno Brain Institutions)", "Business Process Outsourcing (BPO) / ITES Services", "Software Engineering", "Systems Integration and Turnkey Solutions",
+                "Other"
+            ]
+        };
+
+        // Function to add a message to the chat display
+        function addMessage(text, sender = "bot", isHTML = false) {
+            const msgContainer = document.createElement("div");
+            msgContainer.classList.add("message", sender);
+
+            const msgBubble = document.createElement("div");
+            msgBubble.classList.add("message-bubble");
+
+            if (isHTML) {
+                msgBubble.innerHTML = text;
+            } else {
+                msgBubble.textContent = text;
+            }
+
+            msgContainer.appendChild(msgBubble);
+            chatBox.appendChild(msgContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // --- Forms (HTML generated for display within chat) ---
+
+        function showJobSeekerForm() {
+            const formHtml = `
+                <div class="form-bubble">
+                    <h4>Job Application Details</h4>
+                    <p>Please provide the following information:</p>
+                    <form id="jobSeekerForm">
+                        <label for="js_fullName">Full Name:</label>
+                        <input type="text" id="js_fullName" placeholder="John Doe" required><br>
+
+                        <label for="js_email">Email Address:</label>
+                        <input type="email" id="js_email" placeholder="you@example.com" required><br>
+
+                        <label for="js_contact">Contact (Phone):</label>
+                        <input type="tel" id="js_contact" placeholder="+2547XXXXXXXX" required><br>
+
+                        <label for="js_linkedin">LinkedIn Profile (Optional):</label>
+                        <input type="url" id="js_linkedin" placeholder="https://linkedin.com/in/yourprofile"><br>
+
+                        <label for="js_social">Other Professional Social Media/Portfolio (Optional):</label>
+                        <input type="text" id="js_social" placeholder="e.g., GitHub, Behance URL"><br>
+
+                        <label for="js_experience">Years of Work Experience:</label>
+                        <input type="number" id="js_experience" min="0" placeholder="e.g., 3" required><br>
+
+                        <label for="js_department">Preferred Department:</label>
+                        <select id="js_department" required>
+                            <option value="">Select Department</option>
+                            ${data.departmentsList.map(dept => `<option value="${dept}">${dept}</option>`).join('')}
+                        </select><br>
+
+                        <p class="form-note">To upload your Resume/CV, please email it to <b><a href="mailto:careers@example.com?subject=Chatbot Application - [Your Name]" target="_blank" style="color: #007bff;">careers@example.com</a></b> with the subject: <i>"Chatbot Application - [Your Full Name]"</i></p>
+                        <label for="js_resumeLink">Or provide an online resume/portfolio link:</label>
+                        <input type="url" id="js_resumeLink" placeholder="https://yourwebsite.com/resume"><br>
+
+                        <button type="submit">Submit Application Details</button>
+                    </form>
+                </div>
+            `;
+            addMessage(formHtml, "bot", true);
+            setupFormListener("jobSeekerForm");
+        }
+
+        function showClientForm() {
+            const formHtml = `
+                <div class="form-bubble">
+                    <h4>Client Inquiry Form</h4>
+                    <p>Tell us about your company and project needs:</p>
+                    <form id="clientForm">
+                        <label for="cl_companyName">Full Company Name:</label>
+                        <input type="text" id="cl_companyName" placeholder="Your Company Ltd." required><br>
+
+                        <label for="cl_contactName">Your Full Name (Contact Person):</label>
+                        <input type="text" id="cl_contactName" placeholder="Jane Doe" required><br>
+
+                        <label for="cl_email">Your Email Address:</label>
+                        <input type="email" id="cl_email" placeholder="jane.doe@company.com" required><br>
+
+                        <label for="cl_contact">Your Contact (Phone):</label>
+                        <input type="tel" id="cl_contact" placeholder="+2547XXXXXXXX" required><br>
+
+                        <label for="cl_serviceNeeded">Service You're Interested In:</label>
+                        <select id="cl_serviceNeeded" required>
+                            <option value="">Select a Service</option>
+                            ${data.servicesList.map(service => `<option value="${service}">${service}</option>`).join('')}
+                        </select><br>
+
+                        <label for="cl_projectDescription">Brief Description of Project/Needs:</label>
+                        <textarea id="cl_projectDescription" rows="4" placeholder="e.g., We need help migrating our legacy systems to AWS..." required></textarea><br>
+
+                        <button type="submit">Submit Inquiry</button>
+                    </form>
+                </div>
+            `;
+            addMessage(formHtml, "bot", true);
+            setupFormListener("clientForm");
+        }
+
+        function setupFormListener(formId) {
+            // Need a slight delay to ensure the form is rendered in the DOM before attaching listener
+            setTimeout(() => {
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const submissionData = {};
+                        formData.forEach((value, key) => {
+                            submissionData[key] = value;
+                        });
+
+                        console.log(`--- ${formId === 'jobSeekerForm' ? 'Job Seeker' : 'Client'} Data (SIMULATED SUBMISSION) ---`);
+                        console.log(submissionData);
+                        console.log("------------------------------------------");
+
+                        // Simulate success message
+                        if (formId === 'jobSeekerForm') {
+                            addMessage(`Thank you, ${submissionData.fullName || 'applicant'}! Your details have been recorded. Please remember to email your resume to careers@example.com. We'll be in touch soon.`);
+                        } else {
+                            addMessage(`Thank you, ${submissionData.contactName || 'client'}! Your inquiry for ${submissionData.serviceNeeded || 'our services'} has been received. Our team will contact you shortly.`);
+                        }
+
+                        // Reset chatbot state after form submission
+                        userType = null;
+                        step = 0;
+                        collectedData = {};
+                        userInput.value = '';
+                        userInput.placeholder = "Type your message...";
+                    });
+                }
+            }, 100);
+        }
+
+        // --- Main Chatbot Logic ---
+
+        function processConversation(input) {
+            const lowerInput = input.toLowerCase();
+
+            // Handle information requests first, regardless of current "step" if not in a form
+            if (lowerInput.includes("service") || lowerInput.includes("about services")) {
+                addMessage(data.services, "bot", true);
+                return;
+            }
+            if (lowerInput.includes("employment requirements") || lowerInput.includes("requirements")) {
+                addMessage(data.employmentGeneral, "bot", true);
+                setTimeout(() => addMessage(data.employmentSpecific, "bot", true), 700);
+                return;
+            }
+            if (lowerInput.includes("departments") || lowerInput.includes("available jobs")) {
+                addMessage(data.departments, "bot", true);
+                return;
+            }
+            if (lowerInput.includes("contact human") || lowerInput.includes("speak to human") || lowerInput.includes("agent")) {
+                addMessage("I can connect you to a human! Please email us directly at <b>info@technobrain.com</b> or call our main line at <b>+254 20 2210818</b> during business hours. How else can I help you today?");
+                return;
+            }
+
+
+            if (!userType) {
+                // Initial greeting and intent recognition
+                if (lowerInput.includes("job") || lowerInput.includes("employment") || lowerInput.includes("apply")) {
+                    userType = "job";
+                    addMessage("Great! I can help with job inquiries. Would you like to know about **requirements**, **departments**, or are you ready to **apply now**?");
+                } else if (lowerInput.includes("client") || lowerInput.includes("company") || lowerInput.includes("service")) {
+                    userType = "client";
+                    addMessage("Welcome, potential client! How can I assist your business? I can provide details on our **services** or help you **submit an inquiry**.");
+                } else {
+                    addMessage("I'm sorry, I didn't quite catch that. Please tell me if you are a **Job Seeker** or a **Potential Client**.");
+                }
+            } else {
+                // Guided conversation for job seeker or client
+                if (userType === "job") {
+                    if (lowerInput.includes("apply now") || lowerInput.includes("submit application")) {
+                        showJobSeekerForm();
+                        addMessage("Please fill in your details in the form above.");
+                    } else {
+                         // Default response if general info not explicitly requested or form not triggered
+                        addMessage("For job seekers, I can provide information on **requirements**, **departments**, or help you **apply now**. What would you like?");
+                    }
+                } else if (userType === "client") {
+                    if (lowerInput.includes("submit an inquiry") || lowerInput.includes("inquiry") || lowerInput.includes("need a quote")) {
+                        showClientForm();
+                        addMessage("Please provide your company and project details in the form above.");
+                    } else {
+                        // Default response if general info not explicitly requested or form not triggered
+                        addMessage("As a client, I can offer details on our **services** or help you **submit an inquiry**. What would you prefer?");
+                    }
+                }
+            }
+        }
+
+        function handleUserInput() {
+            const input = userInput.value.trim();
+            if (!input) return;
+
+            addMessage(input, "user");
+            userInput.value = ""; // Clear input field
+
+            setTimeout(() => processConversation(input), 700); // Simulate bot typing delay
+        }
+
+        // Allow pressing Enter to send message
+        userInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                handleUserInput();
+            }
+        });
+    </script>
+</body>
+</html>

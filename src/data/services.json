@@ -1,0 +1,33 @@
+{
+  "cloud_services": [
+    "Cloud Migration",
+    "FinOps",
+    "Generative AI Solutions",
+    "Managed Cloud Services",
+    "Microsoft Workloads",
+    "DevOps On The Cloud"
+  ],
+  "digital_solutions": [
+    "Artificial Intelligence",
+    "Robotic Process Automation",
+    "Chatbot Development",
+    "Engineering Business",
+    "Digital Agriculture",
+    "Internet Of Things (IoT/Locate 365)",
+    "Virtual Reality"
+  ],
+  "public_sector": [
+    "Public Financial Management",
+    "Digital Identity Management",
+    "Tax & Customs",
+    "e-Government Solutions"
+  ],
+  "education_bpo": [
+    "IT Training (Techno Brain Institutions)",
+    "Business Process Outsourcing (BPO) / ITES Services"
+  ],
+  "technical_services": [
+    "Software Engineering",
+    "Systems Integration and Turnkey Solutions"
+  ]
+}

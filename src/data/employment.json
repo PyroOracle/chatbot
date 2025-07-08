@@ -1,0 +1,29 @@
+{
+  "generalRequirements": [
+    "Bachelor's or Master's degree in Computer Science, ICT, Engineering, or related fields",
+    "Relevant professional certifications (e.g., Microsoft, AWS, etc.)",
+    "Strong interpersonal and communication skills",
+    "Ability to work collaboratively in a team",
+    "Proficiency in Microsoft Office Suite and related tools",
+    "Enthusiasm for technology and continuous learning"
+  ],
+  "specificSkills": [
+    "C#, .NET, ASP.NET, VB.NET",
+    "React, Angular, SQL, NoSQL",
+    "QA fundamentals (test planning, automation, reporting)",
+    "Project delivery, Agile tools (Jira, Azure DevOps)",
+    "Git, CI/CD pipelines",
+    "Computer architecture knowledge (x86, System Z, POWER)"
+  ],
+  "departments": [
+    "Software Engineering",
+    "Cloud Services",
+    "Business Process Outsourcing (BPO)",
+    "Sales & Marketing",
+    "Finance/Accounts",
+    "Quality Assurance",
+    "IT Training",
+    "Project Management",
+    "Human Resources"
+  ]
+}
